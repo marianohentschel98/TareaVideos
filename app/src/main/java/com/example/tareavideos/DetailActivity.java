@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -76,29 +77,71 @@ public class DetailActivity extends AppCompatActivity {
         Button pauseButton = audioDialog.findViewById(R.id.pauseButton);
         Button stopButton = audioDialog.findViewById(R.id.stopButton);
 
-        mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.prepare();
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Obtener el ID del recurso de audio
+        int resID = getResources().getIdentifier(url, "raw", getPackageName());
+
+        if (resID == 0) {
+            Log.e("DetailActivity", "No se encontró el archivo de audio: " + url);
+            return;
+        } else {
+            Log.d("DetailActivity", "Archivo de audio encontrado: " + url);
         }
 
-        playButton.setOnClickListener(v -> mediaPlayer.start());
-        pauseButton.setOnClickListener(v -> mediaPlayer.pause());
-        stopButton.setOnClickListener(v -> {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
-            audioDialog.dismiss();
+        // Crear el MediaPlayer con el recurso
+        mediaPlayer = MediaPlayer.create(this, resID);
+
+        if (mediaPlayer == null) {
+            Log.e("DetailActivity", "Error al inicializar MediaPlayer");
+            return;
+        } else {
+            Log.d("DetailActivity", "MediaPlayer inicializado correctamente");
+        }
+
+        // Asegurar volumen máximo
+        mediaPlayer.setVolume(1.0f, 1.0f);
+
+        // Reproducir el audio cuando el botón de play se presione
+        playButton.setOnClickListener(v -> {
+            if (!mediaPlayer.isPlaying()) {
+                Log.d("DetailActivity", "Reproduciendo audio");
+                mediaPlayer.start();
+            }
         });
 
+        // Pausar el audio cuando se presione el botón de pause
+        pauseButton.setOnClickListener(v -> {
+            if (mediaPlayer.isPlaying()) {
+                Log.d("DetailActivity", "Pausando audio");
+                mediaPlayer.pause();
+            }
+        });
+
+        // Detener el audio cuando se presione el botón de stop
+        stopButton.setOnClickListener(v -> {
+            if (mediaPlayer.isPlaying()) {
+                Log.d("DetailActivity", "Deteniendo audio");
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();  // Liberar el MediaPlayer después de detenerlo
+            mediaPlayer = null;
+            audioDialog.dismiss();  // Cerrar el diálogo
+        });
+
+        // Agregar un listener para liberar el MediaPlayer cuando el audio termine
+        mediaPlayer.setOnCompletionListener(mp -> {
+            Log.d("DetailActivity", "Audio completado");
+            mp.release();  // Liberar recursos
+            mediaPlayer = null;
+        });
+
+        // Mostrar el diálogo
         audioDialog.show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Asegurarse de liberar el MediaPlayer cuando la actividad se destruya
         if (mediaPlayer != null) {
             mediaPlayer.release();
         }

@@ -33,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
         itemList = new ArrayList<>();
         itemList.add(new Item("Cristiano Ronaldo", "video", "android.resource://" + getPackageName() + "/" + R.raw.elbicho));
         itemList.add(new Item("Real Madrid", "video", "android.resource://" + getPackageName() + "/" + R.raw.remontada));
-        itemList.add(new Item("Xokas", "audio", "android.resource://" + getPackageName() + "/" + R.raw.quequieresquehagapereira));
-        itemList.add(new Item("Gato", "audio", "android.resource://" + getPackageName() + "/" + R.raw.gatito));
+        itemList.add(new Item("Xokas", "audio", "quequieresquehagapereira"));
+        itemList.add(new Item("Gato", "audio", "gatito"));
         itemList.add(new Item("Google", "web", "https://www.google.com"));
         itemList.add(new Item("YouTube", "web", "https://www.youtube.com"));
 
